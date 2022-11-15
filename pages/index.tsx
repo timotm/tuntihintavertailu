@@ -167,7 +167,9 @@ function ConsumptionCSVUploader({ setConsumptionData }: { setConsumptionData: (d
 }
 
 const getMonths = (consumptionData: ConsumptionData, dataset: HourPrice[]): string[] => {
-  return Array.from(new Set(consumptionData.map(({ hour }) => hour.slice(0, 7))))
+  const consumptionMonths = new Set(consumptionData.map(e => e.hour.slice(0, 7)))
+  const priceMonths = new Set(dataset.map(e => e.hour.slice(0, 7)))
+  return Array.from(consumptionMonths).filter(e => priceMonths.has(e))
 }
 
 const consumptionDataForMonth = (month: string, consumptionData: ConsumptionData): ConsumptionData => {
