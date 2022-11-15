@@ -2,6 +2,7 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import S3 from 'aws-sdk/clients/s3'
 import React, { useEffect, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 
 type DayPrice = {
   date: string,
