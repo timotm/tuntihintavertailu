@@ -24,7 +24,7 @@ type MonthData = {
 
 type ConsumptionData = { hour: string, kwh: number }[]
 
-type HourPrice = { hour: string, price: number }
+type HourPrice = { hour: string, price: string }
 
 const finnishDate = (date: Date): string => date.toLocaleDateString('sv-SE', { timeZone: "Europe/Helsinki" })
 
@@ -54,7 +54,14 @@ const vatForHour = (hour: string): number => {
   }
 }
 
-export async function getStaticProps() {
+export async function getStaticProps(): Promise<{
+  props: {
+    dataset: {
+      hour: string
+      price: string
+    }[]
+  }
+}> {
   const s3 = new S3({
     accessKeyId: process.env.TH_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.TH_AWS_SECRET_ACCESS_KEY,
@@ -82,7 +89,7 @@ export async function getStaticProps() {
 
   const dataset = data.flatMap(
     ({ hourPrices }) => hourPrices
-      .map(e => ({ hour: e.startTime, price: e.price * vatForHour(e.startTime) })))
+      .map(e => ({ hour: e.startTime, price: (e.price * vatForHour(e.startTime)).toFixed(2) })))
 
   return {
     props: {
@@ -166,9 +173,11 @@ function ConsumptionCSVUploader({ setConsumptionData }: { setConsumptionData: (d
   )
 }
 
+const extractMonthFromHour = ({ hour }: { hour: string }): string => hour.slice(0, 7)
+
 const getMonths = (consumptionData: ConsumptionData, dataset: HourPrice[]): string[] => {
-  const consumptionMonths = new Set(consumptionData.map(e => e.hour.slice(0, 7)))
-  const priceMonths = new Set(dataset.map(e => e.hour.slice(0, 7)))
+  const consumptionMonths = new Set(consumptionData.map(extractMonthFromHour))
+  const priceMonths = new Set(dataset.map(extractMonthFromHour))
   return Array.from(consumptionMonths).filter(e => priceMonths.has(e))
 }
 
@@ -202,9 +211,9 @@ const aggregateByDay = (day: string, prices: HourPrice[], consumptionsForDay: Co
   return {
     day,
     data: consumptionsForDay.reduce((acc, { hour, kwh }) => {
-      const price = prices.find(e => e.hour === hour)?.price ?? 0
+      const price = prices.find(e => e.hour === hour)?.price ?? "0"
       acc.kwh += kwh
-      acc.cnt += kwh * price
+      acc.cnt += kwh * parseFloat(price)
       return acc
     }, { kwh: 0, cnt: 0 })
   }
@@ -222,10 +231,14 @@ function Month({ month, prices, consumptionData, activeMonth, setActiveMonth }:
 
   const [data, setData] = useState<MonthData | undefined>()
 
-  useEffect(() => {
-    const days = Array.from(new Set(consumptionDataForMonth(month, consumptionData).map(({ hour }) => hour.slice(0, 10))))
 
-    const daysData = days.map(day => {
+  const extractDayFromHour = ({ hour }: { hour: string }): string => hour.slice(0, 10)
+
+  useEffect(() => {
+    const days = Array.from(new Set(consumptionDataForMonth(month, consumptionData).map(extractDayFromHour)))
+    const daysWithPriceData = new Set(prices.map(extractDayFromHour))
+
+    const daysData = days.filter(day => daysWithPriceData.has(day)).map(day => {
       return aggregateByDay(day, prices, consumptionData.filter(e => e.hour.startsWith(day)))
     })
 
