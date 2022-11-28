@@ -166,9 +166,11 @@ function ConsumptionCSVUploader({ setConsumptionData }: { setConsumptionData: (d
   )
 }
 
+const extractMonthFromHour = ({hour}: {hour: string}): string => hour.slice(0, 7)
+
 const getMonths = (consumptionData: ConsumptionData, dataset: HourPrice[]): string[] => {
-  const consumptionMonths = new Set(consumptionData.map(e => e.hour.slice(0, 7)))
-  const priceMonths = new Set(dataset.map(e => e.hour.slice(0, 7)))
+  const consumptionMonths = new Set(consumptionData.map(extractMonthFromHour))
+  const priceMonths = new Set(dataset.map(extractMonthFromHour))
   return Array.from(consumptionMonths).filter(e => priceMonths.has(e))
 }
 
@@ -222,8 +224,11 @@ function Month({ month, prices, consumptionData, activeMonth, setActiveMonth }:
 
   const [data, setData] = useState<MonthData | undefined>()
 
+
+  const extractDayFromHour = ({ hour }: { hour: string }): string => hour.slice(0, 10)
+
   useEffect(() => {
-    const days = Array.from(new Set(consumptionDataForMonth(month, consumptionData).map(({ hour }) => hour.slice(0, 10))))
+    const days = Array.from(new Set(consumptionDataForMonth(month, consumptionData).map(extractDayFromHour)))
 
     const daysData = days.map(day => {
       return aggregateByDay(day, prices, consumptionData.filter(e => e.hour.startsWith(day)))
