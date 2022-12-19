@@ -103,21 +103,23 @@ const parseLines = (text: string, setConsumptionData: (data: ConsumptionData) =>
   const rows = text.split(/\r?\n/)
   const headers = rows[0].split(';')
 
-  const knownHeaders = ['Mittauspisteen tunnus',
-    'Tuotteen tyyppi',
-    'Resoluutio',
-    'Yksikkötyyppi',
-    'Lukeman tyyppi',
-    'Alkuaika',
-    'Määrä',
-    'Laatu']
+  const fields: { [key: string]: { header: string, pos: number } } = {}
+  fields['time'] = { header: 'Alkuaika', pos: -1 }
+  fields['kwh'] = { header: 'Määrä', pos: -1 }
 
-  if (headers.length !== knownHeaders.length || !headers.every((h, i) => h === knownHeaders[i])) {
-    throw new Error(`Outoja sarakkeita: ${headers}`)
+  for (const key in fields) {
+    const k = fields[key]
+    const pos = headers.indexOf(k.header)
+    if (pos === -1) {
+      throw new Error(`Pakollista kenttää ${k.header} ei löytynyt`)
+    }
+    fields[key].pos = pos
   }
 
   const data = rows.slice(1).map(row => {
-    const [_, __, ___, ____, _____, time, kwh, ______] = row.split(';')
+    const d = row.split(';')
+    const time = d[fields['time'].pos]
+    const kwh = d[fields['kwh'].pos]
     if (time && kwh) {
       return { hour: time, kwh: parseFloat(kwh.replace(',', '.')) }
     }
