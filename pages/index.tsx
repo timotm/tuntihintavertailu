@@ -107,6 +107,7 @@ const parseLines = (text: string, setConsumptionData: (data: ConsumptionData) =>
     'Tuotteen tyyppi',
     'Resoluutio',
     'Yksikkötyyppi',
+    'Lukeman tyyppi',
     'Alkuaika',
     'Määrä',
     'Laatu']
@@ -116,7 +117,7 @@ const parseLines = (text: string, setConsumptionData: (data: ConsumptionData) =>
   }
 
   const data = rows.slice(1).map(row => {
-    const [_, __, ___, ____, time, kwh, _____] = row.split(';')
+    const [_, __, ___, ____, _____, time, kwh, ______] = row.split(';')
     if (time && kwh) {
       return { hour: time, kwh: parseFloat(kwh.replace(',', '.')) }
     }
