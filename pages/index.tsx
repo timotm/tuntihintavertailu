@@ -336,7 +336,7 @@ export default function Home({ dataset }: { dataset: HourPrice[] }) {
         <p className={styles.description}>
           Lataa ensin kulutustietosi csv-muodossa <a className={styles.link} href='https://oma.datahub.fi/'>Fingridin datahubista</a>.
           Valitse sitten ladattu tiedosto alla olevalla painikkeella, paina <i>&quot;Lue tiedosto&quot;</i> ja odota hetki. Kulutustietojasi ei lähetetä mihinkään, vaan ne käsitellään paikallisesti selaimessasi.</p>
-        <p className={styles.description}>Hinnat ovat arvonlisäverollisia hintoja (10% tai 24%). Hinnoissa ei ole mukana sähköyhtiön marginaalia (tyypillisesti n. 0.40 c / kWh) eikä siirtomaksuja.</p>
+        <p className={styles.description}>Hinnat ovat arvonlisäverollisia hintoja (10%, 24% tai 25,5%). Hinnoissa ei ole mukana sähköyhtiön marginaalia (tyypillisesti n. 0.40 c / kWh) eikä siirtomaksuja.</p>
         <p className={styles.description}>
           Ohjeet datahubiin:</p> <ul className={styles.description}>
           <li>Valitse ensin käyttöpaikka</li>
