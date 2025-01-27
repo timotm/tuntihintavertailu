@@ -49,8 +49,11 @@ const vatForHour = (hour: string): number => {
   if (hour >= "2022-11-30T22:00:00Z" && hour <= "2023-04-31T22:00:00Z") {
     return 1.10
   }
-  else {
+  else if (hour <= "2024-12-31T22:00:00Z") {
     return 1.24
+  }
+  else {
+    return 1.255
   }
 }
 
